@@ -1,0 +1,61 @@
+// contracts/FraudMitigator.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+import "./FraudLedger.sol";
+
+contract FraudMitigator {
+    address public owner;
+    FraudLedger private fraudLedger;
+    mapping(address => bool) public frozenAccounts;
+
+    event AccountFrozen(address indexed userAccount);
+    event MfaTriggered(string transactionIdentifier);
+    event SuspiciousActivityReported(address indexed userAccount, uint256 riskScore, string description);
+
+    constructor(address _ledgerAddress) {
+        fraudLedger = FraudLedger(_ledgerAddress);
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can call this function.");
+        _;
+    }
+
+    function freezeAccount(address _userAccount) internal {
+        if (!frozenAccounts[_userAccount]) {
+            frozenAccounts[_userAccount] = true;
+            emit AccountFrozen(_userAccount);
+        }
+    }
+
+    function triggerMfa(string memory _transactionIdentifier) internal {
+        emit MfaTriggered(_transactionIdentifier);
+    }
+
+    function reportSuspiciousActivity(
+        address userAccount,
+        uint256 riskScore,
+        string memory description
+    ) public onlyOwner {
+        freezeAccount(userAccount);
+        emit SuspiciousActivityReported(userAccount, riskScore, description);
+    }
+
+    function executeResponse(
+        uint256 riskScore,
+        address userAccount,
+        string memory transactionIdentifier,
+        uint[2] memory publicInputs,  // CHANGED from uint[1] to uint[2]
+        uint[2] memory a,
+        uint[2][2] memory b,
+        uint[2] memory c
+    ) public onlyOwner {
+        if (riskScore >= 85) {
+            freezeAccount(userAccount);
+            fraudLedger.reportFraudWithProof(transactionIdentifier, publicInputs, a, b, c);
+        } else if (riskScore >= 60) {
+            triggerMfa(transactionIdentifier);
+        }
+    }
+}

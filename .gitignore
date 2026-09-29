@@ -1,0 +1,55 @@
+# Environment & Secrets (CRITICAL)
+.env
+*.env
+**/.env
+**/*.env
+!.env.example
+!**/.env.example
+
+# Python virtual environment
+venv/
+**/venv/
+.venv/
+**/.venv/
+env/
+**/env/
+
+# Python cache & compiled files
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Node.js dependencies & builds
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+dist-ssr/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs & temp files
+logs/
+**/logs/
+*.log
+gunicorn.pid
+
+# Databases & local state
+*.db
+*.sqlite
+*.sqlite3
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
